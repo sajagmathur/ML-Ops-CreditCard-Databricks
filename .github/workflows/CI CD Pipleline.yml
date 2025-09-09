@@ -1,0 +1,178 @@
+name: Full ML Pipeline - Train, Champion Select, Infer, Monitor
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Train_Register:
+    name: Train and Register Model
+    runs-on: ubuntu-latest
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Databricks CLI and jq
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | bash
+          sudo apt-get update && sudo apt-get install -y jq
+          databricks -v
+
+      - name: Configure Databricks CLI Profile
+        run: |
+          databricks configure --profile github --host "$DATABRICKS_HOST" --token "$DATABRICKS_TOKEN"
+
+      - name: Trigger Train & Register Job and Wait
+        run: |
+          echo "Triggering Train & Register Databricks job..."
+          RESPONSE=$(databricks jobs run-now --profile github --json '{"job_id": 195162413374755}')
+          echo "$RESPONSE"
+          RUN_ID=$(echo "$RESPONSE" | jq -r '.run_id')
+          echo "Triggered run_id: $RUN_ID"
+
+          STATUS="PENDING"
+          while [[ "$STATUS" == "PENDING" || "$STATUS" == "RUNNING" || "$STATUS" == "QUEUED" ]]; do
+            sleep 30
+            STATUS=$(databricks jobs get-run "$RUN_ID" --profile github | jq -r '.state.life_cycle_state')
+            echo "Current status: $STATUS"
+          done
+
+          RESULT=$(databricks jobs get-run "$RUN_ID" --profile github | jq -r '.state.result_state')
+          if [[ "$RESULT" != "SUCCESS" ]]; then
+            echo "❌ Job failed with result: $RESULT"
+            exit 1
+          fi
+          echo "✅ Train & Register job completed successfully!"
+
+  Champion_Selection:
+    name: Champion Selection
+    runs-on: ubuntu-latest
+    needs: Train_Register
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Install Databricks CLI and jq
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | bash
+          sudo apt-get update && sudo apt-get install -y jq
+          databricks -v
+
+      - name: Configure Databricks CLI Profile
+        run: |
+          databricks configure --profile github --host "$DATABRICKS_HOST" --token "$DATABRICKS_TOKEN"
+
+      - name: Trigger Champion Selection Job and Wait
+        run: |
+          echo "Triggering Champion Selection Databricks job..."
+          RESPONSE=$(databricks jobs run-now --profile github --json '{"job_id": 994183734960529}')
+          echo "$RESPONSE"
+          RUN_ID=$(echo "$RESPONSE" | jq -r '.run_id')
+          echo "Triggered run_id: $RUN_ID"
+
+          STATUS="PENDING"
+          while [[ "$STATUS" == "PENDING" || "$STATUS" == "RUNNING" || "$STATUS" == "QUEUED" ]]; do
+            sleep 30
+            STATUS=$(databricks jobs get-run "$RUN_ID" --profile github | jq -r '.state.life_cycle_state')
+            echo "Current status: $STATUS"
+          done
+
+          RESULT=$(databricks jobs get-run "$RUN_ID" --profile github | jq -r '.state.result_state')
+          if [[ "$RESULT" != "SUCCESS" ]]; then
+            echo "❌ Champion Selection job failed with result: $RESULT"
+            exit 1
+          fi
+          echo "✅ Champion Selection job completed successfully!"
+
+  Inference:
+    name: Batch Inferencing
+    runs-on: ubuntu-latest
+    needs: Champion_Selection
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Install Databricks CLI and jq
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | bash
+          sudo apt-get update && sudo apt-get install -y jq
+          databricks -v
+
+      - name: Configure Databricks CLI Profile
+        run: |
+          databricks configure --profile github --host "$DATABRICKS_HOST" --token "$DATABRICKS_TOKEN"
+
+      - name: Trigger Batch Inference Job and Wait
+        run: |
+          echo "Triggering Batch Inferencing Databricks job..."
+          RESPONSE=$(databricks jobs run-now --profile github --json '{"job_id": 624250236614962}')
+          echo "$RESPONSE"
+          RUN_ID=$(echo "$RESPONSE" | jq -r '.run_id')
+          echo "Triggered run_id: $RUN_ID"
+
+          STATUS="PENDING"
+          while [[ "$STATUS" == "PENDING" || "$STATUS" == "RUNNING" || "$STATUS" == "QUEUED" ]]; do
+            sleep 30
+            STATUS=$(databricks jobs get-run "$RUN_ID" --profile github | jq -r '.state.life_cycle_state')
+            echo "Current status: $STATUS"
+          done
+
+          RESULT=$(databricks jobs get-run "$RUN_ID" --profile github | jq -r '.state.result_state')
+          if [[ "$RESULT" != "SUCCESS" ]]; then
+            echo "❌ Batch Inference job failed with result: $RESULT"
+            exit 1
+          fi
+          echo "✅ Batch Inference job completed successfully!"
+
+  Monitor:
+    name: Monitoring
+    runs-on: ubuntu-latest
+    needs: Inference
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Install Databricks CLI and jq
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | bash
+          sudo apt-get update && sudo apt-get install -y jq
+          databricks -v
+
+      - name: Configure Databricks CLI Profile
+        run: |
+          databricks configure --profile github --host "$DATABRICKS_HOST" --token "$DATABRICKS_TOKEN"
+
+      - name: Trigger Monitoring Job and Wait
+        run: |
+          echo "Triggering Monitoring Databricks job..."
+          RESPONSE=$(databricks jobs run-now --profile github --json '{"job_id": 740661134525172}')
+          echo "$RESPONSE"
+          RUN_ID=$(echo "$RESPONSE" | jq -r '.run_id')
+          echo "Triggered run_id: $RUN_ID"
+
+          STATUS="PENDING"
+          while [[ "$STATUS" == "PENDING" || "$STATUS" == "RUNNING" || "$STATUS" == "QUEUED" ]]; do
+            sleep 30
+            STATUS=$(databricks jobs get-run "$RUN_ID" --profile github | jq -r '.state.life_cycle_state')
+            echo "Current status: $STATUS"
+          done
+
+          RESULT=$(databricks jobs get-run "$RUN_ID" --profile github | jq -r '.state.result_state')
+          if [[ "$RESULT" != "SUCCESS" ]]; then
+            echo "❌ Monitoring job failed with result: $RESULT"
+            exit 1
+          fi
+          echo "✅ Monitoring job completed successfully!"
