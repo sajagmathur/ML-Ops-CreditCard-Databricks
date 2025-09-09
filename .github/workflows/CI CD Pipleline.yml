@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-        
   workflow_dispatch:
 
 jobs:
@@ -36,7 +35,18 @@ jobs:
       - name: Trigger Train & Register Job and Wait
         run: |
           echo "Triggering Train & Register Databricks job..."
-          RESPONSE=$(databricks jobs run-now --profile github --json '{"job_id": 195162413374755}')
+          RESPONSE=$(databricks jobs run-now --profile github --json '{
+            "job_id": 195162413374755,
+            "notebook_params": {
+              "SNOWFLAKE_ACCOUNT": "'"${{ secrets.SNOWFLAKE_ACCOUNT }}"'",
+              "SNOWFLAKE_USER": "'"${{ secrets.SNOWFLAKE_USER }}"'",
+              "SNOWFLAKE_PASSWORD": "'"${{ secrets.SNOWFLAKE_PASSWORD }}"'",
+              "SNOWFLAKE_WAREHOUSE": "'"${{ secrets.SNOWFLAKE_WAREHOUSE }}"'",
+              "SNOWFLAKE_DATABASE": "'"${{ secrets.SNOWFLAKE_DATABASE }}"'",
+              "SNOWFLAKE_SCHEMA": "'"${{ secrets.SNOWFLAKE_SCHEMA }}"'",
+              "DATABRICKS_EMAIL": "'"${{ secrets.DATABRICKS_EMAIL }}"'"
+            }
+          }')
           echo "$RESPONSE"
           RUN_ID=$(echo "$RESPONSE" | jq -r '.run_id')
           echo "Triggered run_id: $RUN_ID"
@@ -78,7 +88,18 @@ jobs:
       - name: Trigger Champion Selection Job and Wait
         run: |
           echo "Triggering Champion Selection Databricks job..."
-          RESPONSE=$(databricks jobs run-now --profile github --json '{"job_id": 994183734960529}')
+          RESPONSE=$(databricks jobs run-now --profile github --json '{
+            "job_id": 994183734960529,
+            "notebook_params": {
+              "SNOWFLAKE_ACCOUNT": "'"${{ secrets.SNOWFLAKE_ACCOUNT }}"'",
+              "SNOWFLAKE_USER": "'"${{ secrets.SNOWFLAKE_USER }}"'",
+              "SNOWFLAKE_PASSWORD": "'"${{ secrets.SNOWFLAKE_PASSWORD }}"'",
+              "SNOWFLAKE_WAREHOUSE": "'"${{ secrets.SNOWFLAKE_WAREHOUSE }}"'",
+              "SNOWFLAKE_DATABASE": "'"${{ secrets.SNOWFLAKE_DATABASE }}"'",
+              "SNOWFLAKE_SCHEMA": "'"${{ secrets.SNOWFLAKE_SCHEMA }}"'",
+              "DATABRICKS_EMAIL": "'"${{ secrets.DATABRICKS_EMAIL }}"'"
+            }
+          }')
           echo "$RESPONSE"
           RUN_ID=$(echo "$RESPONSE" | jq -r '.run_id')
           echo "Triggered run_id: $RUN_ID"
@@ -120,7 +141,18 @@ jobs:
       - name: Trigger Batch Inference Job and Wait
         run: |
           echo "Triggering Batch Inferencing Databricks job..."
-          RESPONSE=$(databricks jobs run-now --profile github --json '{"job_id": 624250236614962}')
+          RESPONSE=$(databricks jobs run-now --profile github --json '{
+            "job_id": 624250236614962,
+            "notebook_params": {
+              "SNOWFLAKE_ACCOUNT": "'"${{ secrets.SNOWFLAKE_ACCOUNT }}"'",
+              "SNOWFLAKE_USER": "'"${{ secrets.SNOWFLAKE_USER }}"'",
+              "SNOWFLAKE_PASSWORD": "'"${{ secrets.SNOWFLAKE_PASSWORD }}"'",
+              "SNOWFLAKE_WAREHOUSE": "'"${{ secrets.SNOWFLAKE_WAREHOUSE }}"'",
+              "SNOWFLAKE_DATABASE": "'"${{ secrets.SNOWFLAKE_DATABASE }}"'",
+              "SNOWFLAKE_SCHEMA": "'"${{ secrets.SNOWFLAKE_SCHEMA }}"'",
+              "DATABRICKS_EMAIL": "'"${{ secrets.DATABRICKS_EMAIL }}"'"
+            }
+          }')
           echo "$RESPONSE"
           RUN_ID=$(echo "$RESPONSE" | jq -r '.run_id')
           echo "Triggered run_id: $RUN_ID"
@@ -162,7 +194,18 @@ jobs:
       - name: Trigger Monitoring Job and Wait
         run: |
           echo "Triggering Monitoring Databricks job..."
-          RESPONSE=$(databricks jobs run-now --profile github --json '{"job_id": 740661134525172}')
+          RESPONSE=$(databricks jobs run-now --profile github --json '{
+            "job_id": 740661134525172,
+            "notebook_params": {
+              "SNOWFLAKE_ACCOUNT": "'"${{ secrets.SNOWFLAKE_ACCOUNT }}"'",
+              "SNOWFLAKE_USER": "'"${{ secrets.SNOWFLAKE_USER }}"'",
+              "SNOWFLAKE_PASSWORD": "'"${{ secrets.SNOWFLAKE_PASSWORD }}"'",
+              "SNOWFLAKE_WAREHOUSE": "'"${{ secrets.SNOWFLAKE_WAREHOUSE }}"'",
+              "SNOWFLAKE_DATABASE": "'"${{ secrets.SNOWFLAKE_DATABASE }}"'",
+              "SNOWFLAKE_SCHEMA": "'"${{ secrets.SNOWFLAKE_SCHEMA }}"'",
+              "DATABRICKS_EMAIL": "'"${{ secrets.DATABRICKS_EMAIL }}"'"
+            }
+          }')
           echo "$RESPONSE"
           RUN_ID=$(echo "$RESPONSE" | jq -r '.run_id')
           echo "Triggered run_id: $RUN_ID"
